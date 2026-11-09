@@ -52,8 +52,11 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     cap.set(cv2.CAP_PROP_FPS, 30)
 
+    # Resolução de renderização em Alta Definição (HD 720p) para a HUD
+    HUD_W, HUD_H = 1280, 720
+
     cv2.namedWindow("Gestures Music AI", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Gestures Music AI", 960, 720)
+    cv2.resizeWindow("Gestures Music AI", HUD_W, HUD_H)
 
     active_note = None
     last_mod_time = 0.0
@@ -77,15 +80,18 @@ def main():
 
             # Espelha o quadro para interacao intuitiva
             frame = cv2.flip(frame, 1)
-            h, w, _ = frame.shape
+
+            # Upscale leve para HUD em Alta Definição (1280x720) sem perda de FPS
+            display_frame = cv2.resize(frame, (HUD_W, HUD_H), interpolation=cv2.INTER_LINEAR)
+            h, w = HUD_H, HUD_W
 
             # Calcula FPS
             now = time.time()
             fps = 0.9 * fps + 0.1 * (1.0 / max(now - prev_frame_time, 1e-5))
             prev_frame_time = now
 
-            # Processa rastreamento das mãos
-            hands, _ = tracker.process_frame(frame)
+            # Processa rastreamento na resolucao nativa da camera mas projeta os pontos na HUD HD
+            hands, _ = tracker.process_frame(frame, target_w=HUD_W, target_h=HUD_H)
 
             # Separação funcional das mãos
             right_hand = None  # Mão da Melodia (na tela espelhada, a mão do lado direito do usuário)
@@ -155,9 +161,9 @@ def main():
                 setattr(main, "_last_ping_sec", int(now))
                 is_online = audio.ping()
 
-            # --- RENDERIZAÇÃO DO HUD ---
+            # --- RENDERIZAÇÃO DO HUD EM ALTA DEFINIÇÃO ---
             hud.draw(
-                frame=frame,
+                frame=display_frame,
                 hands=hands,
                 keyboard=keyboard,
                 classifier=classifier,
@@ -170,7 +176,7 @@ def main():
                 pitch_bend=pitch_bend,
             )
 
-            cv2.imshow("Gestures Music AI", frame)
+            cv2.imshow("Gestures Music AI", display_frame)
 
             # --- TECLAS DE ATALHO ---
             key = cv2.waitKey(1) & 0xFF

@@ -49,8 +49,13 @@ class HandTracker:
         self.detector = vision.HandLandmarker.create_from_options(options)
         self.last_timestamp_ms = 0
 
-    def process_frame(self, frame_bgr: np.ndarray) -> Tuple[List[HandData], np.ndarray]:
+    def process_frame(
+        self, frame_bgr: np.ndarray, target_w: Optional[int] = None, target_h: Optional[int] = None
+    ) -> Tuple[List[HandData], np.ndarray]:
         h, w, _ = frame_bgr.shape
+        render_w = target_w if target_w is not None else w
+        render_h = target_h if target_h is not None else h
+
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
         
@@ -69,7 +74,8 @@ class HandTracker:
                     label = getattr(cat, "category_name", getattr(cat, "display_name", "Right"))
 
                 lms_norm = [(lm.x, lm.y, lm.z) for lm in hand_lms]
-                lms_px = [(int(lm.x * w), int(lm.y * h)) for lm in hand_lms]
+                # Projeta os pontos diretamente na resolução HD de renderização
+                lms_px = [(int(lm.x * render_w), int(lm.y * render_h)) for lm in hand_lms]
 
                 # Finger states (up/down)
                 fingers_up = self._calculate_fingers_up(lms_norm, label)
