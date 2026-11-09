@@ -270,19 +270,36 @@ class HolographicHUD:
         w: int,
         h: int,
     ):
-        # Header superior
-        header_text = "GESTURES MUSIC AI // RUST DSP + OPENCV"
-        cv2.putText(frame, header_text, (20, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.65, COLOR_WHITE, 2, cv2.LINE_AA)
+        # 1. Contador de FPS no Canto Superior Esquerdo (Destaque Neon)
+        fps_val = int(round(fps))
+        if fps_val >= 28:
+            fps_color = COLOR_GREEN
+        elif fps_val >= 20:
+            fps_color = COLOR_AMBER
+        else:
+            fps_color = COLOR_RED
+
+        # Caixa destacada de FPS no topo esquerdo
+        cv2.rectangle(frame, (16, 8), (125, 36), COLOR_DARK_BG, -1)
+        cv2.rectangle(frame, (16, 8), (125, 36), fps_color, 1)
+        cv2.putText(
+            frame, f"FPS: {fps_val}", (24, 28),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.58, fps_color, 2, cv2.LINE_AA
+        )
+
+        # Header superior (ao lado do FPS)
+        header_text = "GESTURES MUSIC AI"
+        cv2.putText(frame, header_text, (140, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.58, COLOR_WHITE, 2, cv2.LINE_AA)
 
         # Status do motor Rust
-        eng_status = "RUST ENGINE: ONLINE" if engine_online else "RUST ENGINE: OFFLINE"
+        eng_status = "RUST ENGINE: ON" if engine_online else "RUST ENGINE: OFF"
         eng_color = COLOR_GREEN if engine_online else COLOR_RED
-        cv2.putText(frame, eng_status, (w - 250, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.48, eng_color, 1, cv2.LINE_AA)
+        cv2.putText(frame, eng_status, (w - 180, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.45, eng_color, 1, cv2.LINE_AA)
 
-        # FPS e Configuração
-        info_text = f"FPS: {fps:.0f} | ONDA: {current_waveform.upper()} | {scale_name}"
-        cv2.putText(frame, info_text, (w - 380, 44), cv2.FONT_HERSHEY_SIMPLEX, 0.42, COLOR_GRAY, 1, cv2.LINE_AA)
+        # Configuração (Onda e Escala)
+        info_text = f"ONDA: {current_waveform.upper()} | {scale_name}"
+        cv2.putText(frame, info_text, (w - 280, 44), cv2.FONT_HERSHEY_SIMPLEX, 0.38, COLOR_GRAY, 1, cv2.LINE_AA)
 
         # Rodapé com comandos
-        footer = "[ESPACO] Modo Tutor | [T] Trocar Musica | [W] Onda (Saw/Sine/Square) | [E] Escala | [Q] Sair"
-        cv2.putText(frame, footer, (20, h - 18), cv2.FONT_HERSHEY_SIMPLEX, 0.46, (200, 200, 200), 1, cv2.LINE_AA)
+        footer = "[ESPACO] Modo Tutor | [T] Trocar Musica | [W] Onda | [E] Escala | [Q] Sair"
+        cv2.putText(frame, footer, (20, h - 16), cv2.FONT_HERSHEY_SIMPLEX, 0.44, (200, 200, 200), 1, cv2.LINE_AA)

@@ -1,5 +1,6 @@
 import math
 import os
+import time
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 import cv2
@@ -39,18 +40,23 @@ class HandTracker:
         base_options = python.BaseOptions(model_asset_path=model_path)
         options = vision.HandLandmarkerOptions(
             base_options=base_options,
+            running_mode=vision.RunningMode.VIDEO,
             num_hands=max_hands,
             min_hand_detection_confidence=min_detection_conf,
             min_hand_presence_confidence=min_presence_conf,
             min_tracking_confidence=min_track_conf,
         )
         self.detector = vision.HandLandmarker.create_from_options(options)
+        self.last_timestamp_ms = 0
 
     def process_frame(self, frame_bgr: np.ndarray) -> Tuple[List[HandData], np.ndarray]:
         h, w, _ = frame_bgr.shape
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
-        result = self.detector.detect(mp_image)
+        
+        now_ms = max(int(time.time() * 1000), self.last_timestamp_ms + 1)
+        self.last_timestamp_ms = now_ms
+        result = self.detector.detect_for_video(mp_image, now_ms)
 
         hands_data: List[HandData] = []
 

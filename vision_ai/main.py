@@ -42,17 +42,18 @@ def main():
     scale_idx = 0
     audio.set_waveform(WAVEFORMS[waveform_idx])
 
-    # 3. Abre a Webcam
+    # 3. Abre a Webcam (640x480 nativo a 30 FPS para estabilidade maxima de CPU)
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("[ERRO] Nao foi possivel abrir a webcam (indice 0). Verifique se a camera esta conectada.")
         return
 
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv2.CAP_PROP_FPS, 30)
 
     cv2.namedWindow("Gestures Music AI", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Gestures Music AI", 1280, 720)
+    cv2.resizeWindow("Gestures Music AI", 960, 720)
 
     active_note = None
     last_mod_time = 0.0
