@@ -1,66 +1,62 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 220" width="840" height="220">
   <defs>
-    <linearGradient id="lightCyanPurple" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0097A7"/>
-      <stop offset="50%" stop-color="#6200EA"/>
-      <stop offset="100%" stop-color="#AA00FF"/>
+    <!-- Dark A for Light Background -->
+    <linearGradient id="lightA" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#334155"/>
     </linearGradient>
 
-    <linearGradient id="lightTextGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#1A237E"/>
-      <stop offset="100%" stop-color="#00838F"/>
+    <!-- Deep Blue Wave -->
+    <linearGradient id="lightWave" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
     </linearGradient>
   </defs>
 
-  <!-- Clean Transparent/White Background -->
-  <rect width="100%" height="100%" fill="#FFFFFF" rx="16"/>
+  <!-- Clean Canvas -->
+  <rect width="100%" height="100%" fill="#FFFFFF" rx="20"/>
+  <rect width="100%" height="100%" rx="20" fill="none" stroke="#E2E8F0" stroke-width="1.5"/>
 
-  <!-- ================= SYMBOL ================= -->
-  <g transform="translate(40, 20)">
-    <!-- Outer Rings -->
-    <circle cx="90" cy="90" r="74" fill="none" stroke="#6200EA" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.25"/>
-    <circle cx="90" cy="90" r="82" fill="none" stroke="#0097A7" stroke-width="1" stroke-dasharray="8 8" opacity="0.2"/>
+  <!-- ================= THE MINIMAL SYMBOL (Left) ================= -->
+  <g transform="translate(50, 20)">
+    <!-- The "A" Legs -->
+    <path d="M 52,150 L 105,32 L 158,150" 
+          fill="none" 
+          stroke="url(#lightA)" 
+          stroke-width="11" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
 
-    <!-- Geometric "A" -->
-    <path d="M 45,150 L 90,30 L 135,150" fill="none" stroke="url(#lightCyanPurple)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-
-    <!-- Soundwave Crossbar -->
-    <path d="M 52,112 Q 70,88 90,112 T 128,112" fill="none" stroke="#0097A7" stroke-width="5" stroke-linecap="round"/>
-    <path d="M 60,126 Q 75,108 90,126 T 120,126" fill="none" stroke="#AA00FF" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-
-    <!-- Biometric Nodes -->
-    <circle cx="90" cy="30" r="7" fill="#6200EA" stroke="#FFFFFF" stroke-width="2.5"/>
-    <circle cx="45" cy="150" r="5" fill="#AA00FF" stroke="#FFFFFF" stroke-width="2"/>
-    <circle cx="135" cy="150" r="5" fill="#0097A7" stroke="#FFFFFF" stroke-width="2"/>
-    <circle cx="90" cy="112" r="4.5" fill="#0097A7" stroke="#FFFFFF" stroke-width="1.5"/>
-
-    <circle cx="90" cy="72" r="4" fill="#0097A7"/>
-    <line x1="90" y1="37" x2="90" y2="68" stroke="#0097A7" stroke-width="1.5" stroke-dasharray="2 3"/>
+    <!-- The Sine Wave (Crossbar) -->
+    <path d="M 46,105 C 64,80 90,80 105,105 C 120,130 146,130 164,105" 
+          fill="none" 
+          stroke="url(#lightWave)" 
+          stroke-width="9.5" 
+          stroke-linecap="round"/>
   </g>
 
-  <!-- ================= TYPOGRAPHY ================= -->
-  <g transform="translate(250, 75)">
+  <!-- ================= TYPOGRAPHY (Right) ================= -->
+  <g transform="translate(260, 78)">
     <!-- Wordmark -->
-    <text x="0" y="48" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="56" letter-spacing="2">
-      <tspan fill="url(#lightTextGrad)">Aether</tspan>
-      <tspan fill="#6200EA">Synth</tspan>
+    <text x="0" y="46" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="54" letter-spacing="-0.5">
+      <tspan fill="#0F172A">Aether</tspan><tspan fill="#0284C7">Synth</tspan>
     </text>
 
-    <!-- Subtitle -->
-    <text x="4" y="85" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="14" fill="#546E7A" letter-spacing="6">
-      AI GESTURAL SYNTHESIZER &amp; TUTOR
+    <!-- Subtitle / Tagline -->
+    <text x="3" y="82" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="13" fill="#64748B" letter-spacing="5">
+      GESTURAL SYNTHESIZER &amp; AI TUTOR
     </text>
 
-    <!-- Tech Specs Mini Tags -->
-    <g transform="translate(4, 105)">
-      <rect x="0" y="0" width="90" height="20" rx="4" fill="#E0F7FA" stroke="#0097A7" stroke-width="1"/>
-      <text x="45" y="14" font-family="monospace" font-size="10" fill="#006064" text-anchor="middle" font-weight="bold">RUST DSP</text>
+    <!-- Minimal Badges -->
+    <g transform="translate(3, 102)">
+      <rect x="0" y="0" width="80" height="20" rx="4" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+      <text x="40" y="14" font-family="monospace" font-size="9.5" fill="#334155" text-anchor="middle" font-weight="bold">RUST DSP</text>
 
-      <rect x="100" y="0" width="115" height="20" rx="4" fill="#F3E5F5" stroke="#AB47BC" stroke-width="1"/>
-      <text x="157" y="14" font-family="monospace" font-size="10" fill="#4A148C" text-anchor="middle" font-weight="bold">MEDIAPIPE IA</text>
+      <rect x="90" y="0" width="105" height="20" rx="4" fill="#E0F2FE" stroke="#BAE6FD" stroke-width="1"/>
+      <text x="142" y="14" font-family="monospace" font-size="9.5" fill="#0369A1" text-anchor="middle" font-weight="bold">MEDIAPIPE IA</text>
 
-      <rect x="225" y="0" width="105" height="20" rx="4" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1"/>
-      <text x="277" y="14" font-family="monospace" font-size="10" fill="#1B5E20" text-anchor="middle" font-weight="bold">REAL-TIME HUD</text>
+      <rect x="205" y="0" width="95" height="20" rx="4" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
+      <text x="252" y="14" font-family="monospace" font-size="9.5" fill="#15803D" text-anchor="middle" font-weight="bold">REAL-TIME</text>
     </g>
   </g>
 </svg>

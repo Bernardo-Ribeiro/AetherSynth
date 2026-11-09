@@ -1,192 +1,121 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <!-- Liquid Glass Deep Background -->
-    <radialGradient id="liquidDarkBg" cx="50%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#1E1938"/>
-      <stop offset="40%" stop-color="#0E1220"/>
-      <stop offset="85%" stop-color="#05070C"/>
-      <stop offset="100%" stop-color="#020305"/>
-    </radialGradient>
-
-    <!-- Liquid Glass Rim Specular Highlight (Top-Left Light Source) -->
-    <linearGradient id="glassRimGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9"/>
-      <stop offset="25%" stop-color="#00E5FF" stop-opacity="0.7"/>
-      <stop offset="65%" stop-color="#7C4DFF" stop-opacity="0.3"/>
-      <stop offset="90%" stop-color="#D500F9" stop-opacity="0.75"/>
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.5"/>
+    <!-- Deep Obsidian / Dark Graphite Background -->
+    <linearGradient id="bgDark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14151B"/>
+      <stop offset="100%" stop-color="#08090C"/>
     </linearGradient>
 
-    <!-- Glass Surface Specular Sheen (Diagonal Liquid Reflection) -->
-    <linearGradient id="surfaceSheen" x1="20%" y1="0%" x2="80%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.30"/>
-      <stop offset="35%" stop-color="#FFFFFF" stop-opacity="0.08"/>
-      <stop offset="70%" stop-color="#00E5FF" stop-opacity="0.02"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    <!-- Liquid Glass Specular Edge (Top-Left Light Source) -->
+    <linearGradient id="glassEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="40%" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.02"/>
     </linearGradient>
 
-    <!-- Liquid Plasma Tube Gradients -->
-    <linearGradient id="neonPlasma" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00E5FF"/>
-      <stop offset="48%" stop-color="#7C4DFF"/>
-      <stop offset="100%" stop-color="#D500F9"/>
+    <!-- Clean Diagonal Glass Surface Sheen -->
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="35%" stop-color="#FFFFFF" stop-opacity="0.03"/>
+      <stop offset="65%" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
 
-    <linearGradient id="tubeSpecular" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
-      <stop offset="50%" stop-color="#E0F7FA" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#F3E5F5" stop-opacity="0.9"/>
+    <!-- Sophisticated Monochrome Liquid Frost for the "A" -->
+    <linearGradient id="liquidA" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
     </linearGradient>
 
-    <!-- Glass Orb (Liquid Droplet) Radial Gradients -->
-    <radialGradient id="orbApex" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="25%" stop-color="#80D8FF"/>
-      <stop offset="65%" stop-color="#00B0FF"/>
-      <stop offset="95%" stop-color="#004D40"/>
-    </radialGradient>
+    <!-- Pure Electric Accent for the Sine Wave (Subtle, Premium Cyan/Ice-Blue) -->
+    <linearGradient id="waveIce" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
 
-    <radialGradient id="orbMagenta" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="30%" stop-color="#EA80FC"/>
-      <stop offset="70%" stop-color="#D500F9"/>
-      <stop offset="100%" stop-color="#4A0072"/>
-    </radialGradient>
+    <!-- Subtle Soft Shadow for Depth -->
+    <filter id="softDepth" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
 
-    <radialGradient id="orbCyan" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="30%" stop-color="#84FFFF"/>
-      <stop offset="70%" stop-color="#00E5FF"/>
-      <stop offset="100%" stop-color="#006064"/>
-    </radialGradient>
-
-    <radialGradient id="orbCenter" cx="35%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="35%" stop-color="#B9F6CA"/>
-      <stop offset="75%" stop-color="#00E676"/>
-      <stop offset="100%" stop-color="#004D40"/>
-    </radialGradient>
-
-    <!-- Caustic Center Lens Glow -->
-    <radialGradient id="lensCaustic" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.22"/>
-      <stop offset="50%" stop-color="#7C4DFF" stop-opacity="0.10"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-    </radialGradient>
-
-    <!-- Filters -->
-    <filter id="liquidGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="10" result="blur1"/>
-      <feGaussianBlur stdDeviation="22" result="blur2"/>
+    <filter id="waveGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
       <feMerge>
-        <feMergeNode in="blur2"/>
-        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
 
-    <filter id="dropletGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="7" result="glow"/>
-      <feMerge>
-        <feMergeNode in="glow"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-
-    <!-- Clip Path for Glass Container Bevel -->
-    <clipPath id="squircleClip">
-      <rect width="512" height="512" rx="116" ry="116"/>
+    <clipPath id="cardClip">
+      <rect width="512" height="512" rx="120" ry="120"/>
     </clipPath>
   </defs>
 
   <!-- ================= BASE CONTAINER ================= -->
-  <g clip-path="url(#squircleClip)">
-    <!-- Deep Glass Body -->
-    <rect width="512" height="512" fill="url(#liquidDarkBg)"/>
+  <g clip-path="url(#cardClip)">
+    <!-- Dark Matte Obsidian Base -->
+    <rect width="512" height="512" fill="url(#bgDark)"/>
 
-    <!-- Internal Caustic Lens -->
-    <circle cx="256" cy="256" r="210" fill="url(#lensCaustic)"/>
+    <!-- Subtle Radial Vignette -->
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <circle cx="256" cy="256" r="240" fill="url(#centerGlow)"/>
 
-    <!-- Orbital Rings (Refracted under glass) -->
-    <circle cx="256" cy="256" r="192" fill="none" stroke="#7C4DFF" stroke-width="1.8" stroke-dasharray="10 14" opacity="0.38"/>
-    <circle cx="256" cy="256" r="162" fill="none" stroke="#00E5FF" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.32"/>
-    <circle cx="256" cy="256" r="132" fill="none" stroke="#D500F9" stroke-width="1.2" stroke-dasharray="4 6" opacity="0.28"/>
+    <!-- Diagonal Glass Surface Sheen -->
+    <path d="M 0,0 L 512,0 L 512,160 C 340,180 180,260 0,440 Z" fill="url(#glassSheen)"/>
 
-    <!-- Radial Reticle HUD Marks -->
-    <g stroke="#00E5FF" stroke-width="2" opacity="0.45">
-      <line x1="256" y1="52" x2="256" y2="70"/>
-      <line x1="256" y1="442" x2="256" y2="460"/>
-      <line x1="52" y1="256" x2="70" y2="256"/>
-      <line x1="442" y1="256" x2="460" y2="256"/>
+    <!-- ================= THE MINIMALIST "A" ================= -->
+    <g filter="url(#softDepth)">
+      <!-- The "A" Legs (Clean, Bold, Geometric) -->
+      <path d="M 148,375 L 256,130 L 364,375" 
+            fill="none" 
+            stroke="url(#liquidA)" 
+            stroke-width="24" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"/>
+
+      <!-- Specular Highlight along the top edge of the "A" (Glass Tube Reflection) -->
+      <path d="M 150,370 L 256,134 L 362,370" 
+            fill="none" 
+            stroke="#FFFFFF" 
+            stroke-width="3" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"
+            opacity="0.6"/>
+
+      <!-- ================= THE SINE WAVE (CROSSBAR) ================= -->
+      <!-- Soft ambient glow behind the wave -->
+      <path d="M 140,280 C 172,230 224,230 256,280 C 288,330 340,330 372,280" 
+            fill="none" 
+            stroke="#38BDF8" 
+            stroke-width="26" 
+            stroke-linecap="round" 
+            opacity="0.25" 
+            filter="url(#waveGlow)"/>
+
+      <!-- The Core Wave -->
+      <path d="M 140,280 C 172,230 224,230 256,280 C 288,330 340,330 372,280" 
+            fill="none" 
+            stroke="url(#waveIce)" 
+            stroke-width="20" 
+            stroke-linecap="round"/>
+
+      <!-- Crisp Specular Crest on the Wave -->
+      <path d="M 142,278 C 172,228 224,228 256,278 C 288,328 340,328 370,278" 
+            fill="none" 
+            stroke="#FFFFFF" 
+            stroke-width="3.5" 
+            stroke-linecap="round" 
+            opacity="0.85"/>
     </g>
-
-    <!-- ================= CENTRAL "A" (LIQUID GLASS TUBES) ================= -->
-    <!-- 1. Deep Neon Glow Underlay -->
-    <path d="M 140,370 L 256,120 L 372,370" fill="none" stroke="url(#neonPlasma)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" opacity="0.4" filter="url(#liquidGlow)"/>
-
-    <!-- 2. Outer Glass Tube Body (Frosted Translucent Cylinder) -->
-    <path d="M 140,370 L 256,120 L 372,370" fill="none" stroke="url(#neonPlasma)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-
-    <!-- 3. Liquid Plasma Core (High Energy Fluid Beam) -->
-    <path d="M 140,370 L 256,120 L 372,370" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-
-    <!-- 4. Specular Glass Tube Highlights (Light reflection on top of cylindrical glass) -->
-    <path d="M 142,364 L 254,124 L 366,364" fill="none" stroke="url(#tubeSpecular)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-
-    <!-- ================= SINE WAVE (LIQUID OSCILLATION) ================= -->
-    <!-- Bottom Purple Shadow/Echo -->
-    <path d="M 180,318 Q 218,276 256,318 T 332,318" fill="none" stroke="#D500F9" stroke-width="8" stroke-linecap="round" opacity="0.8" filter="url(#liquidGlow)"/>
-    <!-- Main Cyan Liquid Wave -->
-    <path d="M 160,286 Q 208,222 256,286 T 352,286" fill="none" stroke="#00E5FF" stroke-width="13" stroke-linecap="round" filter="url(#liquidGlow)"/>
-    <!-- Liquid Wave Inner Specular Ridge -->
-    <path d="M 162,283 Q 208,220 256,283 T 350,283" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
-
-    <!-- Internal Vertical Beam to Energy Center -->
-    <line x1="256" y1="138" x2="256" y2="198" stroke="#00E5FF" stroke-width="2.5" stroke-dasharray="3 5" opacity="0.75"/>
-    <circle cx="256" cy="208" r="9" fill="url(#orbCenter)" filter="url(#dropletGlow)"/>
-    <circle cx="254" cy="205" r="2.5" fill="#FFFFFF" opacity="0.9"/>
-
-    <!-- ================= LIQUID GLASS ORBS (BIOMETRIC NODES) ================= -->
-    <!-- 1. Apex Node (Top Glass Droplet) -->
-    <g transform="translate(256, 120)">
-      <circle cx="0" cy="0" r="22" fill="#00E5FF" opacity="0.35" filter="url(#dropletGlow)"/>
-      <circle cx="0" cy="0" r="18" fill="url(#orbApex)"/>
-      <!-- Glass Specular Reflection Highlight -->
-      <ellipse cx="-5" cy="-6" rx="6" ry="3.5" transform="rotate(-30 -5 -6)" fill="#FFFFFF" opacity="0.92"/>
-      <circle cx="4" cy="6" r="2" fill="#FFFFFF" opacity="0.4"/>
-    </g>
-
-    <!-- 2. Left Node (Magenta Glass Droplet) -->
-    <g transform="translate(140, 370)">
-      <circle cx="0" cy="0" r="18" fill="#D500F9" opacity="0.35" filter="url(#dropletGlow)"/>
-      <circle cx="0" cy="0" r="15" fill="url(#orbMagenta)"/>
-      <ellipse cx="-4" cy="-5" rx="5" ry="2.8" transform="rotate(-30 -4 -5)" fill="#FFFFFF" opacity="0.9"/>
-      <circle cx="3" cy="5" r="1.5" fill="#FFFFFF" opacity="0.4"/>
-    </g>
-
-    <!-- 3. Right Node (Cyan Glass Droplet) -->
-    <g transform="translate(372, 370)">
-      <circle cx="0" cy="0" r="18" fill="#00E5FF" opacity="0.35" filter="url(#dropletGlow)"/>
-      <circle cx="0" cy="0" r="15" fill="url(#orbCyan)"/>
-      <ellipse cx="-4" cy="-5" rx="5" ry="2.8" transform="rotate(-30 -4 -5)" fill="#FFFFFF" opacity="0.9"/>
-      <circle cx="3" cy="5" r="1.5" fill="#FFFFFF" opacity="0.4"/>
-    </g>
-
-    <!-- 4. Center Wave Node (Glass Ring & Bead) -->
-    <g transform="translate(256, 286)">
-      <circle cx="0" cy="0" r="13" fill="url(#orbApex)"/>
-      <ellipse cx="-3.5" cy="-4" rx="4" ry="2" transform="rotate(-30 -3.5 -4)" fill="#FFFFFF" opacity="0.9"/>
-    </g>
-
-    <!-- ================= LIQUID GLASS OVERLAY SHEEN (TOP SPECULAR) ================= -->
-    <!-- Curved Glass Lens Sheen (Simulating curved thick glass surface reflection) -->
-    <path d="M 0,0 L 512,0 L 512,180 C 370,195 210,265 0,440 Z" fill="url(#surfaceSheen)"/>
-
-    <!-- Secondary Rim Glint at bottom right -->
-    <ellipse cx="440" cy="460" rx="90" ry="40" fill="#D500F9" opacity="0.12" filter="url(#liquidGlow)"/>
   </g>
 
-  <!-- Outer 3D Glass Bevel Border (Light Refraction Edge) -->
-  <rect width="512" height="512" rx="116" ry="116" fill="none" stroke="url(#glassRimGradient)" stroke-width="4.5" opacity="0.85"/>
-  <rect width="504" height="504" x="4" y="4" rx="112" ry="112" fill="none" stroke="#FFFFFF" stroke-width="1.2" opacity="0.25"/>
+  <!-- ================= 1PX LIQUID GLASS BEVEL BORDER ================= -->
+  <rect width="512" height="512" rx="120" ry="120" 
+        fill="none" 
+        stroke="url(#glassEdge)" 
+        stroke-width="2.5"/>
 </svg>
