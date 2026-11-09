@@ -34,6 +34,9 @@ trap cleanup EXIT INT TERM
 # Aguarda 0.5s para o socket UDP inicializar
 sleep 0.5
 
+# Configuração do backend gráfico para compatibilidade e silenciamento de avisos Qt
+export QT_QPA_PLATFORM="xcb;wayland"
+
 # 3. Inicia a interface Python com visão computacional e HUD
 echo "[INFO] Iniciando Vision AI & Holographic HUD..."
 "$PYTHON_VENV" "$PYTHON_MAIN"

@@ -70,38 +70,51 @@ class MLGestureClassifier:
         """Treina o modelo com exemplos base para partida imediata."""
         X, y = [], []
 
-        # Amostras de referência aproximadas para cada classe
-        for _ in range(30):
-            # 0: Fist
-            feat = np.ones(24) * 0.5 + np.random.normal(0, 0.05, 24)
-            feat[3] = 0.4  # indicador tip
-            feat[7] = 0.4  # medio tip
-            X.append(feat)
-            y.append(0)
+        # Amostras de referência aproximadas para cada classe (0 a 8)
+        for _ in range(25):
+            # 0: Fist (todos dedos fechados)
+            feat = np.ones(24) * 0.5 + np.random.normal(0, 0.04, 24)
+            X.append(feat); y.append(0)
 
-            # 1: Open Palm
-            feat = np.ones(24) * 1.8 + np.random.normal(0, 0.08, 24)
-            X.append(feat)
-            y.append(1)
+            # 1: Open Palm (todos dedos esticados)
+            feat = np.ones(24) * 1.8 + np.random.normal(0, 0.05, 24)
+            X.append(feat); y.append(1)
 
-            # 2: Point (apenas indicador alto)
-            feat = np.ones(24) * 0.6 + np.random.normal(0, 0.05, 24)
-            feat[3] = 1.9 + np.random.normal(0, 0.05)  # tip 8
-            X.append(feat)
-            y.append(2)
+            # 2: Point (apenas indicador esticado)
+            feat = np.ones(24) * 0.5 + np.random.normal(0, 0.04, 24)
+            feat[3] = 1.9 + np.random.normal(0, 0.05)  # ponta do indicador
+            X.append(feat); y.append(2)
 
-            # 3: Peace (indicador e medio altos)
-            feat = np.ones(24) * 0.6 + np.random.normal(0, 0.05, 24)
+            # 3: Peace (indicador e medio esticados)
+            feat = np.ones(24) * 0.5 + np.random.normal(0, 0.04, 24)
             feat[3] = 1.8 + np.random.normal(0, 0.05)
             feat[7] = 1.8 + np.random.normal(0, 0.05)
-            X.append(feat)
-            y.append(3)
+            X.append(feat); y.append(3)
 
-            # 6: Pinch (polegar e indicador próximos)
-            feat = np.ones(24) * 0.9 + np.random.normal(0, 0.05, 24)
-            feat[20] = 0.15 + np.random.normal(0, 0.02)  # tip_dists[0] (4-8)
-            X.append(feat)
-            y.append(6)
+            # 4: Three (indicador, medio, anelar)
+            feat = np.ones(24) * 0.5 + np.random.normal(0, 0.04, 24)
+            feat[3] = 1.8; feat[7] = 1.8; feat[11] = 1.8
+            X.append(feat); y.append(4)
+
+            # 5: Four (4 dedos sem polegar)
+            feat = np.ones(24) * 1.8 + np.random.normal(0, 0.04, 24)
+            feat[0] = 0.5  # polegar recolhido
+            X.append(feat); y.append(5)
+
+            # 6: Pinch (polegar e indicador colados)
+            feat = np.ones(24) * 0.9 + np.random.normal(0, 0.04, 24)
+            feat[20] = 0.12 + np.random.normal(0, 0.02)  # tip_dists[0] (4-8)
+            X.append(feat); y.append(6)
+
+            # 7: Rock (indicador e minimo)
+            feat = np.ones(24) * 0.5 + np.random.normal(0, 0.04, 24)
+            feat[3] = 1.8; feat[15] = 1.8
+            X.append(feat); y.append(7)
+
+            # 8: Thumbs Up (apenas polegar esticado)
+            feat = np.ones(24) * 0.5 + np.random.normal(0, 0.04, 24)
+            feat[0] = 1.8  # polegar esticado
+            X.append(feat); y.append(8)
 
         self.clf.fit(np.array(X), np.array(y))
         self.is_trained = True
@@ -109,9 +122,9 @@ class MLGestureClassifier:
     def predict(self, hand: HandData) -> Tuple[str, float]:
         """Prevê o gesto usando o classificador de IA e retorna (nome_do_gesto, confiança)."""
         feat = self._extract_features(hand.landmarks_norm).reshape(1, -1)
-        pred_idx = self.clf.predict(feat)[0]
+        pred_idx = int(self.clf.predict(feat)[0])
         probs = self.clf.predict_proba(feat)[0]
-        conf = float(probs[pred_idx])
+        conf = float(np.max(probs))
 
         # Heurística de refinamento para garantir consistência visual
         # Dedos levantados: [Polegar, Indicador, Médio, Anelar, Mínimo]
