@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AetherSynth — Identidade Visual &amp; Logotipos</title>
+  <style>
+    :root {
+      --bg: #07090E;
+      --card-bg: #0F141F;
+      --border: #1E293B;
+      --cyan: #00E5FF;
+      --magenta: #D500F9;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--cyan), var(--magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    header p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .card-header span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: #1E293B;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .preview-box {
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 220px;
+    }
+    .preview-box.dark {
+      background: #000206;
+      border: 1px solid #1E293B;
+    }
+    .preview-box.light {
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+    }
+    .preview-box img {
+      max-width: 100%;
+      height: auto;
+    }
+    .icon-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AetherSynth</h1>
+      <p>Manual de Identidade Visual e Logotipos Vetoriais SVG</p>
+    </header>
+
+    <div class="grid">
+      <!-- 1. Primary Dark Logo -->
+      <div class="card">
+        <div class="card-header">
+          <h2>1. Logotipo Principal (Dark Mode / Cyberpunk HUD)</h2>
+          <span>assets/logo-primary.svg</span>
+        </div>
+        <p class="desc">A versão oficial do projeto para telas escuras, apresentações em projetores e capa do repositório. Destaque para o "A" formado por feixes holográficos com nó de rastreamento biométrico e onda senoidal.</p>
+        <div class="preview-box dark">
+          <img src="logo-primary.svg" alt="AetherSynth Logo Principal">
+        </div>
+      </div>
+
+      <!-- 2. Light / Document Logo -->
+      <div class="card">
+        <div class="card-header">
+          <h2>2. Logotipo para Documentos e Artigos (Light Mode)</h2>
+          <span>assets/logo-light.svg</span>
+        </div>
+        <p class="desc">Versão otimizada para impressão em papel, relatórios A4, PDF de entrega e slides claros para a banca avaliadora.</p>
+        <div class="preview-box light">
+          <img src="logo-light.svg" alt="AetherSynth Logo Claro">
+        </div>
+      </div>
+
+      <!-- 3. Icon / App Mark -->
+      <div class="card">
+        <div class="card-header">
+          <h2>3. Ícone Quadrado do App (App Icon &amp; Favicon)</h2>
+          <span>assets/logo-icon.svg</span>
+        </div>
+        <p class="desc">Símbolo compacto (512x512) perfeito para ícone do executável, avatar do GitHub ou botão de launcher no desktop.</p>
+        <div class="preview-box dark" style="padding: 40px;">
+          <img src="logo-icon.svg" alt="AetherSynth App Icon" style="width: 240px; height: 240px;">
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

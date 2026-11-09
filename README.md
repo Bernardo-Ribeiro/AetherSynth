@@ -1,4 +1,8 @@
-# Gestures Music AI 🎵🤖
+<p align="center">
+  <img src="assets/logo-primary.svg" alt="AetherSynth Logo" width="800">
+</p>
+
+# AetherSynth 🎵✨
 
 > **Instrumento Musical Holográfico e Tutor Inteligente Controlado por Gestos em Tempo Real**
 > Projeto para a disciplina de **Tópicos Avançados (IA ou Robótica)** — Curso TADS.
@@ -7,7 +11,7 @@
 
 ## 🎯 Visão Geral do Projeto
 
-Nem todos têm acesso a instrumentos musicais físicos ou conhecimentos formais de teoria musical. O **Gestures Music AI** transforma qualquer webcam em um instrumento musical holográfico de baixa latência e em um **tutor musical inteligente**, permitindo que o usuário toque melodias no ar, module timbres com movimentos expressivos e aprenda músicas com feedback pedagógico da IA em tempo real.
+Nem todos têm acesso a instrumentos musicais físicos ou conhecimentos formais de teoria musical. O **AetherSynth** transforma qualquer webcam em um instrumento musical holográfico de baixa latência e em um **tutor musical inteligente**, permitindo que o usuário toque melodias no ar, module timbres com movimentos expressivos e aprenda músicas com feedback pedagógico da IA em tempo real.
 
 ---
 

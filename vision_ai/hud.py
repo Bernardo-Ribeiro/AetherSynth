@@ -288,8 +288,8 @@ class HolographicHUD:
         )
 
         # Header superior (ao lado do FPS)
-        header_text = "GESTURES MUSIC AI"
-        cv2.putText(frame, header_text, (140, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.58, COLOR_WHITE, 2, cv2.LINE_AA)
+        header_text = "AETHERSYNTH // AI GESTURAL SYNTH"
+        cv2.putText(frame, header_text, (140, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.58, COLOR_CYAN, 2, cv2.LINE_AA)
 
         # Status do motor Rust
         eng_status = "RUST ENGINE: ON" if engine_online else "RUST ENGINE: OFF"

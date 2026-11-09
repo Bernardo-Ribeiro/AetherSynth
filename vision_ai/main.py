@@ -20,7 +20,7 @@ SCALE_NAMES = list(SCALES.keys())
 
 def main():
     print("=====================================================")
-    print("  GESTURES MUSIC AI - Python Vision & Tutor Interface")
+    print("  AETHERSYNTH - AI Gestural Synthesizer & Tutor")
     print("=====================================================")
 
     # 1. Conecta ao Audio Engine (Rust)
@@ -55,8 +55,8 @@ def main():
     # Resolução de renderização em Alta Definição (HD 720p) para a HUD
     HUD_W, HUD_H = 1280, 720
 
-    cv2.namedWindow("Gestures Music AI", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Gestures Music AI", HUD_W, HUD_H)
+    cv2.namedWindow("AetherSynth", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("AetherSynth", HUD_W, HUD_H)
 
     active_note = None
     last_mod_time = 0.0
@@ -176,7 +176,7 @@ def main():
                 pitch_bend=pitch_bend,
             )
 
-            cv2.imshow("Gestures Music AI", display_frame)
+            cv2.imshow("AetherSynth", display_frame)
 
             # --- TECLAS DE ATALHO ---
             key = cv2.waitKey(1) & 0xFF

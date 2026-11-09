@@ -7,7 +7,7 @@ PYTHON_VENV="$PROJECT_DIR/vision_ai/venv/bin/python"
 PYTHON_MAIN="$PROJECT_DIR/vision_ai/main.py"
 
 echo "=========================================================="
-echo "  Iniciando Gestures Music AI (Rust DSP + Python Vision)"
+echo "  Iniciando AetherSynth (Rust DSP + Python Vision HUD)"
 echo "=========================================================="
 
 # 1. Verifica se o binário Rust existe, se não, compila
