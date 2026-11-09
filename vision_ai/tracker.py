@@ -24,7 +24,14 @@ class HandData:
 class HandTracker:
     """Rastreamento de mãos e extração de cinemática com MediaPipe Tasks API."""
 
-    def __init__(self, model_path: Optional[str] = None, max_hands: int = 2):
+    def __init__(
+        self,
+        model_path: Optional[str] = None,
+        max_hands: int = 2,
+        min_detection_conf: float = 0.6,
+        min_track_conf: float = 0.5,
+        min_presence_conf: float = 0.5,
+    ):
         if model_path is None:
             base_dir = os.path.dirname(os.path.abspath(__file__))
             model_path = os.path.join(base_dir, "hand_landmarker.task")
@@ -33,9 +40,9 @@ class HandTracker:
         options = vision.HandLandmarkerOptions(
             base_options=base_options,
             num_hands=max_hands,
-            min_hand_detection_confidence=0.6,
-            min_hand_presence_confidence=0.5,
-            min_tracking_confidence=0.5,
+            min_hand_detection_confidence=min_detection_conf,
+            min_hand_presence_confidence=min_presence_conf,
+            min_tracking_confidence=min_track_conf,
         )
         self.detector = vision.HandLandmarker.create_from_options(options)
 
