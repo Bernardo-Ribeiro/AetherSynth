@@ -121,11 +121,6 @@ class MLGestureClassifier:
 
     def predict(self, hand: HandData) -> Tuple[str, float]:
         """Prevê o gesto usando o classificador de IA e retorna (nome_do_gesto, confiança)."""
-        feat = self._extract_features(hand.landmarks_norm).reshape(1, -1)
-        pred_idx = int(self.clf.predict(feat)[0])
-        probs = self.clf.predict_proba(feat)[0]
-        conf = float(np.max(probs))
-
         # Heurística de refinamento para garantir consistência visual
         # Dedos levantados: [Polegar, Indicador, Médio, Anelar, Mínimo]
         f = hand.fingers_up
@@ -146,6 +141,11 @@ class MLGestureClassifier:
         if f[0] and f[1] and not f[2] and not f[3] and f[4]:
             return "Rock (Chifre)", 0.88
 
+        feat = self._extract_features(hand.landmarks_norm).reshape(1, -1)
+        probs = self.clf.predict_proba(feat)[0]
+        best = int(np.argmax(probs))
+        pred_idx = int(self.clf.classes_[best])
+        conf = float(probs[best])
         name = self.GESTURE_LABELS[pred_idx] if pred_idx < len(self.GESTURE_LABELS) else "Gesto"
         return name, conf
 

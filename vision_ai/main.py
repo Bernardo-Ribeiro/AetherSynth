@@ -25,11 +25,9 @@ def main():
 
     # 1. Conecta ao Audio Engine (Rust)
     audio = AudioEngineClient(host="127.0.0.1", port=8765)
-    is_online = audio.ping()
-    if is_online:
-        print("[OK] Rust Audio Engine conectado via UDP (127.0.0.1:8765)")
-    else:
-        print("[AVISO] Rust Audio Engine offline. Certifique-se de iniciar o binario de audio.")
+    audio.ping()
+    is_online = False
+    last_ping_time = time.monotonic()
 
     # 2. Inicializa componentes
     tracker = HandTracker(max_hands=2, min_detection_conf=0.7, min_track_conf=0.6)
@@ -106,10 +104,10 @@ def main():
                 else:
                     left_hand = hand
 
-            # Se detectar apenas 1 mão, usa a posição na tela para decidir o papel
+            # Uma mão sobre uma tecla deve poder tocá-la em qualquer lado da tela.
             if len(hands) == 1:
                 h_only = hands[0]
-                if h_only.center[0] > w * 0.4:
+                if keyboard.check_hit(h_only, w, h) is not None or h_only.center[0] > w * 0.4:
                     right_hand = h_only
                     left_hand = None
                 else:
@@ -156,15 +154,18 @@ def main():
                     pitch_bend *= 0.8
                     audio.modulate(pitch_bend=pitch_bend)
 
-            # Verifica status da engine a cada 3 segundos
-            if int(now) % 3 == 0 and int(now) != getattr(main, "_last_ping_sec", 0):
-                setattr(main, "_last_ping_sec", int(now))
-                is_online = audio.ping()
+            # Consulta o status sem aguardar pela rede no loop de vídeo.
+            ping_now = time.monotonic()
+            if ping_now - last_ping_time >= 3.0:
+                audio.ping()
+                last_ping_time = ping_now
+            is_online = audio.is_online()
 
             # --- RENDERIZAÇÃO DO HUD EM ALTA DEFINIÇÃO ---
             hud.draw(
                 frame=display_frame,
                 hands=hands,
+                melody_hand=right_hand,
                 keyboard=keyboard,
                 classifier=classifier,
                 tutor=tutor,

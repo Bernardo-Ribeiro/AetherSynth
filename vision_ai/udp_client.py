@@ -1,5 +1,6 @@
 import json
 import socket
+import time
 from typing import Optional
 
 
@@ -12,6 +13,7 @@ class AudioEngineClient:
         self.addr = (host, port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.setblocking(False)
+        self._last_pong = None
 
     def _send(self, payload: dict):
         try:
@@ -63,13 +65,17 @@ class AudioEngineClient:
         """Define a forma de onda: 'sine', 'saw', 'square', 'triangle'."""
         self._send({"type": "set_waveform", "waveform": waveform.lower()})
 
-    def ping(self) -> bool:
-        """Verifica se o motor Rust está ouvindo."""
+    def ping(self):
+        """Solicita uma resposta sem interromper o processamento de vídeo."""
+        self._send({"type": "ping"})
+
+    def is_online(self, timeout: float = 4.0) -> bool:
+        """Recebe respostas pendentes e verifica a última resposta válida."""
         try:
-            sock_sync = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock_sync.settimeout(0.2)
-            sock_sync.sendto(b'{"type":"ping"}', self.addr)
-            data, _ = sock_sync.recvfrom(1024)
-            return b"pong" in data
-        except Exception:
-            return False
+            while True:
+                data, addr = self.sock.recvfrom(1024)
+                if addr == self.addr and b"pong" in data:
+                    self._last_pong = time.monotonic()
+        except BlockingIOError:
+            pass
+        return self._last_pong is not None and time.monotonic() - self._last_pong < timeout

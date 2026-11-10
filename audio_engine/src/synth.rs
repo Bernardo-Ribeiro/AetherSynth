@@ -65,6 +65,7 @@ pub struct Voice {
     pub env_state: EnvelopeState,
     pub env_level: f32,
     pub env_time: f32,
+    release_level: f32,
     pub adsr: Adsr,
 }
 
@@ -80,6 +81,7 @@ impl Voice {
             env_state: EnvelopeState::Idle,
             env_level: 0.0,
             env_time: 0.0,
+            release_level: 0.0,
             adsr: Adsr::default(),
         }
     }
@@ -96,7 +98,11 @@ impl Voice {
     }
 
     pub fn release(&mut self) {
-        if self.active && self.env_state != EnvelopeState::Idle {
+        if self.active
+            && self.env_state != EnvelopeState::Idle
+            && self.env_state != EnvelopeState::Release
+        {
+            self.release_level = self.env_level;
             self.env_state = EnvelopeState::Release;
             self.env_time = 0.0;
         }
@@ -161,9 +167,8 @@ impl Voice {
                     self.env_state = EnvelopeState::Idle;
                     self.active = false;
                 } else {
-                    let start_level = self.adsr.sustain;
                     let progress = (self.env_time / self.adsr.release).min(1.0);
-                    self.env_level = start_level * (1.0 - progress);
+                    self.env_level = self.release_level * (1.0 - progress);
                     if self.env_time >= self.adsr.release {
                         self.env_state = EnvelopeState::Idle;
                         self.env_level = 0.0;
@@ -211,34 +216,47 @@ pub struct LowPassFilter {
     pub resonance: f32,
     s1: f32,
     s2: f32,
+    g: f32,
+    target_g: f32,
+    smoothing: f32,
+    sample_rate: f32,
 }
 
 impl LowPassFilter {
-    pub fn new() -> Self {
+    pub fn new(sample_rate: f32) -> Self {
+        let cutoff = 5000.0_f32.min(sample_rate * 0.45);
+        let g = (PI * cutoff / sample_rate).tan();
         Self {
-            cutoff: 5000.0,
+            cutoff,
             resonance: 0.1,
             s1: 0.0,
             s2: 0.0,
+            g,
+            target_g: g,
+            smoothing: 1.0 - (-1.0 / (0.02 * sample_rate)).exp(),
+            sample_rate,
         }
     }
 
     pub fn set_cutoff(&mut self, cutoff_hz: f32) {
-        self.cutoff = cutoff_hz.clamp(40.0, 18000.0);
+        self.cutoff = cutoff_hz.clamp(40.0, 18000.0_f32.min(self.sample_rate * 0.45));
+        self.target_g = (PI * self.cutoff / self.sample_rate).tan();
     }
 
     pub fn set_resonance(&mut self, res: f32) {
         self.resonance = res.clamp(0.0, 0.95);
     }
 
-    pub fn process(&mut self, input: f32, sample_rate: f32) -> f32 {
-        let f = (PI * self.cutoff / sample_rate).min(0.45);
-        let q = 1.0 - self.resonance;
-        
-        self.s1 += f * (input - self.s1 - q * self.s2);
-        self.s2 += f * self.s1;
-
-        self.s2.clamp(-2.0, 2.0)
+    pub fn process(&mut self, input: f32) -> f32 {
+        // Filtro state-variable com integração trapezoidal e transição suave.
+        self.g += self.smoothing * (self.target_g - self.g);
+        let k = 2.0 - 1.8 * self.resonance;
+        let a1 = 1.0 / (1.0 + self.g * (self.g + k));
+        let v1 = a1 * (self.s1 + self.g * (input - self.s2));
+        let v2 = self.s2 + self.g * v1;
+        self.s1 = 2.0 * v1 - self.s1;
+        self.s2 = 2.0 * v2 - self.s2;
+        v2
     }
 }
 
@@ -293,7 +311,7 @@ impl PolySynth {
         Self {
             voices,
             waveform: Waveform::Saw,
-            filter: LowPassFilter::new(),
+            filter: LowPassFilter::new(sample_rate),
             delay: DelayEffect::new(sample_rate as usize, 0.28),
             pitch_bend: 0.0,
             master_volume: 0.7,
@@ -369,7 +387,7 @@ impl PolySynth {
         }
 
         // Apply Filter
-        let filtered = self.filter.process(mixed, self.sample_rate);
+        let filtered = self.filter.process(mixed);
 
         // Apply Delay
         let delayed = self.delay.process(filtered);
@@ -377,5 +395,46 @@ impl PolySynth {
         // Master Volume & Soft clipping to prevent distortion
         let out = delayed * self.master_volume;
         out.tanh()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn filtered_rms(sample_rate: f32, cutoff: f32, frequency: f32) -> f32 {
+        let mut filter = LowPassFilter::new(sample_rate);
+        filter.set_cutoff(cutoff);
+        let mut energy = 0.0;
+        let count = sample_rate as usize;
+        for i in 0..count {
+            let input = (2.0 * PI * frequency * i as f32 / sample_rate).sin();
+            let output = filter.process(input);
+            assert!(output.is_finite());
+            if i >= count / 2 {
+                energy += output * output;
+            }
+        }
+        (energy / (count / 2) as f32).sqrt()
+    }
+
+    #[test]
+    fn cutoff_audibly_changes_high_frequency_content() {
+        for sample_rate in [44_100.0, 48_000.0] {
+            let closed = filtered_rms(sample_rate, 200.0, 3_000.0);
+            let open = filtered_rms(sample_rate, 10_000.0, 3_000.0);
+            assert!(open > closed * 20.0, "closed={closed}, open={open}");
+        }
+    }
+
+    #[test]
+    fn early_release_does_not_jump_to_sustain() {
+        let mut voice = Voice::new();
+        voice.trigger(60, 1.0, 0.0);
+        voice.next_sample(48_000.0, Waveform::Saw);
+        let before = voice.env_level;
+        voice.release();
+        voice.next_sample(48_000.0, Waveform::Saw);
+        assert!(voice.env_level <= before);
     }
 }

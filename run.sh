@@ -10,10 +10,11 @@ echo "=========================================================="
 echo "  Iniciando AetherSynth (Rust DSP + Python Vision HUD)"
 echo "=========================================================="
 
-# 1. Verifica se o binário Rust existe, se não, compila
-if [ ! -f "$RUST_BIN" ]; then
-    echo "[INFO] Compilando o motor de audio Rust em release..."
-    cd "$PROJECT_DIR/audio_engine" && $HOME/.cargo/bin/cargo build --release
+# 1. Cargo recompila apenas quando o código do motor mudou.
+echo "[INFO] Verificando motor de audio Rust..."
+if ! (cd "$PROJECT_DIR/audio_engine" && "$HOME/.cargo/bin/cargo" build --release); then
+    echo "[ERRO] Nao foi possivel compilar o motor de audio."
+    exit 1
 fi
 
 # 2. Inicia o motor de áudio Rust em background

@@ -10,6 +10,21 @@ from mediapipe.tasks.python import vision
 import numpy as np
 
 
+def hand_openness(landmarks: List[Tuple[float, float, float]]) -> float:
+    """Abertura relativa à palma, independente da distância até a câmera."""
+    wrist = landmarks[0]
+    palm = landmarks[9]
+    palm_size = math.hypot(palm[0] - wrist[0], palm[1] - wrist[1])
+    if palm_size < 1e-5:
+        return 0.0
+    # Quatro dedos evitam que a posição lateral do polegar domine a medida.
+    extension = sum(
+        math.hypot(landmarks[i][0] - wrist[0], landmarks[i][1] - wrist[1])
+        for i in (8, 12, 16, 20)
+    ) / (4.0 * palm_size)
+    return max(0.0, min(1.0, extension - 1.0))
+
+
 @dataclass
 class HandData:
     label: str  # "Left" ou "Right"
@@ -80,15 +95,7 @@ class HandTracker:
                 # Finger states (up/down)
                 fingers_up = self._calculate_fingers_up(lms_norm, label)
 
-                # Openness (distância média das pontas ao pulso)
-                wrist = lms_norm[0]
-                tips = [4, 8, 12, 16, 20]
-                dists = [
-                    math.sqrt((lms_norm[tip][0] - wrist[0]) ** 2 + (lms_norm[tip][1] - wrist[1]) ** 2)
-                    for tip in tips
-                ]
-                avg_dist = sum(dists) / len(dists)
-                openness = np.clip((avg_dist - 0.15) / (0.42 - 0.15), 0.0, 1.0)
+                openness = hand_openness(lms_norm)
 
                 # Centro da palma (média dos pontos 0, 5, 9, 13, 17)
                 palm_pts = [lms_px[i] for i in [0, 5, 9, 13, 17]]

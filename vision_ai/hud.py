@@ -117,6 +117,7 @@ class HolographicHUD:
         self,
         frame: np.ndarray,
         hands: List[HandData],
+        melody_hand: Optional[HandData],
         keyboard: HolographicVirtualKeyboard,
         classifier: MLGestureClassifier,
         tutor: IntelligentMusicTutor,
@@ -135,7 +136,7 @@ class HolographicHUD:
         self._draw_acoustic_pads(frame, keyboard, tutor, active_note, pulse)
 
         # 2. Rastreamento Minimalista das Mãos
-        self._draw_hands_minimal(frame, hands, classifier, cutoff, pitch_bend, pulse)
+        self._draw_hands_minimal(frame, hands, melody_hand, classifier, cutoff, pitch_bend, pulse)
 
         # 3. Widget de Cutoff (Filtro Mão Esquerda)
         self._draw_cutoff_widget(frame, cutoff, h)
@@ -226,6 +227,7 @@ class HolographicHUD:
         self,
         frame: np.ndarray,
         hands: List[HandData],
+        melody_hand: Optional[HandData],
         classifier: MLGestureClassifier,
         cutoff: float,
         pitch_bend: float,
@@ -243,8 +245,8 @@ class HolographicHUD:
 
         for hand in hands:
             pts = hand.landmarks_px
-            is_right = (hand.label == "Right")
-            line_color = COLOR_ICE_BLUE if is_right else COLOR_INDIGO
+            is_melody = hand is melody_hand
+            line_color = COLOR_ICE_BLUE if is_melody else COLOR_INDIGO
 
             # Conexões elegantes (espessura 1.5px suave)
             for p1, p2 in connections:
@@ -261,7 +263,7 @@ class HolographicHUD:
             # Retícula de mira precisa na ponta do indicador (dedo 8)
             tip8 = pts[8]
             reticle_r = int(12 + pulse * 3)
-            cv2.circle(frame, tip8, reticle_r, COLOR_ICE_BLUE if is_right else COLOR_INDIGO, 1, cv2.LINE_AA)
+            cv2.circle(frame, tip8, reticle_r, line_color, 1, cv2.LINE_AA)
             cv2.circle(frame, tip8, 2, COLOR_WHITE, -1, cv2.LINE_AA)
 
             # Tag informativa em card de vidro flutuante de alta visibilidade
@@ -269,7 +271,7 @@ class HolographicHUD:
             wrist_x, wrist_y = pts[0]
             tag_y = max(wrist_y + 30, 42)
 
-            if is_right:
+            if is_melody:
                 tag_text = f"MELODIA  |  {gesture_name.split(' ')[0]}"
                 badge_w = 180
             else:
