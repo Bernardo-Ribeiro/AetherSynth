@@ -2,8 +2,11 @@
 **/__pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 venv/
 .env
+vision_ai/models/user_samples.npz
+vision_ai/models/chord_mlp_weights.npz
 
 # Rust
 **/target/

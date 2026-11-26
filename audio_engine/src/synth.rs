@@ -1,5 +1,14 @@
 use std::f32::consts::PI;
 
+pub const MAX_VOICES: usize = 16;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VoiceRole {
+    Live,
+    ChordLoop,
+    MelodyLoop,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Waveform {
     Sine,
@@ -37,10 +46,29 @@ pub struct Adsr {
 impl Default for Adsr {
     fn default() -> Self {
         Self {
-            attack: 0.02,
-            decay: 0.1,
-            sustain: 0.7,
+            attack: 0.012,
+            decay: 0.10,
+            sustain: 0.72,
             release: 0.15,
+        }
+    }
+}
+
+impl Adsr {
+    pub fn for_role(role: VoiceRole) -> Self {
+        match role {
+            VoiceRole::ChordLoop => Self {
+                attack: 0.018,
+                decay: 0.12,
+                sustain: 0.68,
+                release: 0.18,
+            },
+            VoiceRole::Live | VoiceRole::MelodyLoop => Self {
+                attack: 0.008,
+                decay: 0.10,
+                sustain: 0.72,
+                release: 0.14,
+            },
         }
     }
 }
@@ -57,6 +85,7 @@ pub enum EnvelopeState {
 #[derive(Debug, Clone)]
 pub struct Voice {
     pub note: u8,
+    pub role: VoiceRole,
     pub frequency: f32,
     pub base_frequency: f32,
     pub velocity: f32,
@@ -73,6 +102,7 @@ impl Voice {
     pub fn new() -> Self {
         Self {
             note: 0,
+            role: VoiceRole::Live,
             frequency: 440.0,
             base_frequency: 440.0,
             velocity: 0.0,
@@ -86,15 +116,27 @@ impl Voice {
         }
     }
 
-    pub fn trigger(&mut self, note: u8, velocity: f32, pitch_bend_semitones: f32) {
+    pub fn trigger(
+        &mut self,
+        note: u8,
+        velocity: f32,
+        pitch_bend_semitones: f32,
+        role: VoiceRole,
+    ) {
         self.note = note;
-        self.velocity = velocity;
+        self.role = role;
+        self.adsr = Adsr::for_role(role);
+        self.velocity = velocity.clamp(0.05, 1.0);
         self.base_frequency = 440.0 * 2.0_f32.powf((note as f32 - 69.0) / 12.0);
-        self.update_pitch_bend(pitch_bend_semitones);
+        let applied_bend = if role == VoiceRole::ChordLoop {
+            0.0
+        } else {
+            pitch_bend_semitones
+        };
+        self.update_pitch_bend(applied_bend);
         self.active = true;
         self.env_state = EnvelopeState::Attack;
         self.env_time = 0.0;
-        // Don't reset phase completely to avoid harsh click if retriggered
     }
 
     pub fn release(&mut self) {
@@ -106,12 +148,6 @@ impl Voice {
             self.env_state = EnvelopeState::Release;
             self.env_time = 0.0;
         }
-    }
-
-    pub fn stop(&mut self) {
-        self.active = false;
-        self.env_state = EnvelopeState::Idle;
-        self.env_level = 0.0;
     }
 
     pub fn update_pitch_bend(&mut self, semitones: f32) {
@@ -126,7 +162,6 @@ impl Voice {
         let dt = 1.0 / sample_rate;
         self.env_time += dt;
 
-        // Process Envelope
         match self.env_state {
             EnvelopeState::Idle => {
                 self.env_level = 0.0;
@@ -182,7 +217,6 @@ impl Voice {
             return 0.0;
         }
 
-        // Generate Raw Waveform
         let raw = match waveform {
             Waveform::Sine => (self.phase * 2.0 * PI).sin(),
             Waveform::Saw => 2.0 * (self.phase - (self.phase + 0.5).floor()),
@@ -199,7 +233,6 @@ impl Voice {
             }
         };
 
-        // Advance phase
         self.phase += self.frequency * dt;
         while self.phase >= 1.0 {
             self.phase -= 1.0;
@@ -248,7 +281,6 @@ impl LowPassFilter {
     }
 
     pub fn process(&mut self, input: f32) -> f32 {
-        // Filtro state-variable com integração trapezoidal e transição suave.
         self.g += self.smoothing * (self.target_g - self.g);
         let k = 2.0 - 1.8 * self.resonance;
         let a1 = 1.0 / (1.0 + self.g * (self.g + k));
@@ -275,8 +307,8 @@ impl DelayEffect {
         Self {
             buffer: vec![0.0; len.max(10)],
             write_idx: 0,
-            feedback: 0.35,
-            mix: 0.25,
+            feedback: 0.30,
+            mix: 0.22,
         }
     }
 
@@ -293,57 +325,116 @@ impl DelayEffect {
 }
 
 pub struct PolySynth {
-    pub voices: [Voice; 8],
+    pub voices: [Voice; MAX_VOICES],
     pub waveform: Waveform,
     pub filter: LowPassFilter,
     pub delay: DelayEffect,
     pub pitch_bend: f32,
     pub master_volume: f32,
     pub sample_rate: f32,
+    pub norm_cutoff: f32,
+    pub pulse_env: f32,
+    pulse_decay: f32,
 }
 
 impl PolySynth {
     pub fn new(sample_rate: f32) -> Self {
-        let voices = [
-            Voice::new(), Voice::new(), Voice::new(), Voice::new(),
-            Voice::new(), Voice::new(), Voice::new(), Voice::new(),
-        ];
-        Self {
+        let voices = std::array::from_fn(|_| Voice::new());
+        let mut synth = Self {
             voices,
             waveform: Waveform::Saw,
             filter: LowPassFilter::new(sample_rate),
             delay: DelayEffect::new(sample_rate as usize, 0.28),
             pitch_bend: 0.0,
-            master_volume: 0.7,
+            master_volume: 0.75,
             sample_rate,
-        }
+            norm_cutoff: 0.7,
+            pulse_env: 0.0,
+            pulse_decay: (-1.0 / (0.12 * sample_rate.max(1.0))).exp(),
+        };
+        synth.set_cutoff(0.7);
+        synth
     }
 
-    pub fn note_on(&mut self, note: u8, velocity: f32) {
-        // Find existing voice with same note, or free voice
-        if let Some(v) = self.voices.iter_mut().find(|v| v.active && v.note == note) {
-            v.trigger(note, velocity, self.pitch_bend);
+    fn allocate_and_trigger(&mut self, note: u8, velocity: f32, role: VoiceRole) {
+        if let Some(v) = self
+            .voices
+            .iter_mut()
+            .find(|v| v.active && v.note == note && v.role == role)
+        {
+            v.trigger(note, velocity, self.pitch_bend, role);
             return;
         }
-        // Find inactive voice
         if let Some(v) = self.voices.iter_mut().find(|v| !v.active) {
-            v.trigger(note, velocity, self.pitch_bend);
+            v.trigger(note, velocity, self.pitch_bend, role);
             return;
         }
-        // Steal oldest voice in release or lowest level
+        if let Some(v) = self
+            .voices
+            .iter_mut()
+            .filter(|v| v.env_state == EnvelopeState::Release)
+            .min_by(|a, b| {
+                a.env_level
+                    .partial_cmp(&b.env_level)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+        {
+            v.trigger(note, velocity, self.pitch_bend, role);
+            return;
+        }
         if let Some(v) = self.voices.iter_mut().min_by(|a, b| {
-            a.env_level.partial_cmp(&b.env_level).unwrap_or(std::cmp::Ordering::Equal)
+            a.env_level
+                .partial_cmp(&b.env_level)
+                .unwrap_or(std::cmp::Ordering::Equal)
         }) {
-            v.trigger(note, velocity, self.pitch_bend);
+            v.trigger(note, velocity, self.pitch_bend, role);
         }
     }
 
-    pub fn note_off(&mut self, note: u8) {
+    pub fn note_on_role(&mut self, note: u8, velocity: f32, role: VoiceRole) {
+        self.allocate_and_trigger(note, velocity, role);
+    }
+
+    pub fn note_off_role(&mut self, note: u8, role: VoiceRole) {
         for v in self.voices.iter_mut() {
-            if v.active && v.note == note {
+            if v.active && v.note == note && v.role == role {
                 v.release();
             }
         }
+    }
+
+    pub fn release_role(&mut self, role: VoiceRole) {
+        for v in self.voices.iter_mut() {
+            if v.active && v.role == role {
+                v.release();
+            }
+        }
+    }
+
+    pub fn chord_on(&mut self, notes: &[u8], velocity: f32, role: VoiceRole) {
+        for v in self.voices.iter_mut() {
+            if v.active && v.role == role && !notes.contains(&v.note) {
+                v.release();
+            }
+        }
+        let chord_vel = (velocity * 0.68).clamp(0.1, 1.0);
+        for &n in notes {
+            self.allocate_and_trigger(n, chord_vel, role);
+        }
+    }
+
+    pub fn trigger_pulse(&mut self, velocity: f32) {
+        let v = velocity.clamp(0.2, 1.0);
+        self.pulse_env = self.pulse_env.max(v);
+        for voice in self.voices.iter_mut() {
+            if voice.active
+                && (voice.role == VoiceRole::ChordLoop || voice.role == VoiceRole::Live)
+                && voice.env_state != EnvelopeState::Release
+            {
+                voice.env_level = (voice.env_level + 0.25 * v).min(1.0);
+            }
+        }
+        self.apply_effective_cutoff();
     }
 
     pub fn all_notes_off(&mut self) {
@@ -355,15 +446,20 @@ impl PolySynth {
     pub fn set_pitch_bend(&mut self, semitones: f32) {
         self.pitch_bend = semitones;
         for v in self.voices.iter_mut() {
-            if v.active {
+            if v.active && v.role != VoiceRole::ChordLoop {
                 v.update_pitch_bend(semitones);
             }
         }
     }
 
     pub fn set_cutoff(&mut self, norm_cutoff: f32) {
-        // Exponential mapping 80 Hz -> 14000 Hz
-        let hz = 80.0 * (14000.0 / 80.0_f32).powf(norm_cutoff.clamp(0.0, 1.0));
+        self.norm_cutoff = norm_cutoff.clamp(0.0, 1.0);
+        self.apply_effective_cutoff();
+    }
+
+    fn apply_effective_cutoff(&mut self) {
+        let eff = (self.norm_cutoff + 0.28 * self.pulse_env).clamp(0.0, 1.0);
+        let hz = 80.0 * (14000.0 / 80.0_f32).powf(eff);
         self.filter.set_cutoff(hz);
     }
 
@@ -372,6 +468,14 @@ impl PolySynth {
     }
 
     pub fn next_sample(&mut self) -> f32 {
+        if self.pulse_env > 0.001 {
+            self.pulse_env *= self.pulse_decay;
+            self.apply_effective_cutoff();
+        } else if self.pulse_env > 0.0 {
+            self.pulse_env = 0.0;
+            self.apply_effective_cutoff();
+        }
+
         let mut mixed = 0.0;
         let mut active_count = 0;
 
@@ -386,14 +490,10 @@ impl PolySynth {
             mixed /= (active_count as f32).sqrt();
         }
 
-        // Apply Filter
         let filtered = self.filter.process(mixed);
-
-        // Apply Delay
         let delayed = self.delay.process(filtered);
-
-        // Master Volume & Soft clipping to prevent distortion
-        let out = delayed * self.master_volume;
+        let accent = 1.0 + 0.22 * self.pulse_env;
+        let out = delayed * self.master_volume * accent;
         out.tanh()
     }
 }
@@ -430,11 +530,45 @@ mod tests {
     #[test]
     fn early_release_does_not_jump_to_sustain() {
         let mut voice = Voice::new();
-        voice.trigger(60, 1.0, 0.0);
+        voice.trigger(60, 1.0, 0.0, VoiceRole::Live);
         voice.next_sample(48_000.0, Waveform::Saw);
         let before = voice.env_level;
         voice.release();
         voice.next_sample(48_000.0, Waveform::Saw);
         assert!(voice.env_level <= before);
+    }
+
+    #[test]
+    fn chord_loop_ignores_pitch_bend_while_live_bends() {
+        let mut synth = PolySynth::new(48_000.0);
+        synth.chord_on(&[48, 60, 64, 67], 0.85, VoiceRole::ChordLoop);
+        synth.note_on_role(72, 0.9, VoiceRole::Live);
+        synth.set_pitch_bend(2.0);
+
+        let loop_c = synth
+            .voices
+            .iter()
+            .find(|v| v.active && v.note == 60 && v.role == VoiceRole::ChordLoop)
+            .expect("chord loop voice present");
+        assert!((loop_c.frequency - loop_c.base_frequency).abs() < 1e-3);
+
+        let live_c = synth
+            .voices
+            .iter()
+            .find(|v| v.active && v.note == 72 && v.role == VoiceRole::Live)
+            .expect("live voice present");
+        assert!(live_c.frequency > live_c.base_frequency * 1.1);
+    }
+
+    #[test]
+    fn sixteen_voices_hold_chord_and_melody_without_stealing() {
+        let mut synth = PolySynth::new(48_000.0);
+        synth.chord_on(&[48, 60, 64, 67], 0.85, VoiceRole::ChordLoop);
+        for n in [72, 74, 76, 77] {
+            synth.note_on_role(n, 0.9, VoiceRole::MelodyLoop);
+        }
+        synth.note_on_role(79, 0.9, VoiceRole::Live);
+        let active = synth.voices.iter().filter(|v| v.active).count();
+        assert_eq!(active, 9);
     }
 }

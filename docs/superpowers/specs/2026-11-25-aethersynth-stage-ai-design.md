@@ -2,7 +2,7 @@
 
 **Data:** 2026-11-25  
 **Repositório:** `/home/bernardo/Projetos/gestures-music-ai`  
-**Status:** Aguardando aprovação  
+**Status:** Aprovado  
 
 ---
 
@@ -81,6 +81,7 @@ Transformar o **AetherSynth** de um protótipo de teclado aéreo de notas soltas
 - **Abordagem 1** adotada para IA rápida e redução de latência.
 - **Modo Loop Session** permitindo gravar bases harmônicas, criar melodias por cima (*overdub*) e usar **gestos pulsantes** para alterar o ritmo.
 - **Detecção automática do tom da música** a partir da harmonia gravada no loop, travando a escala para evitar notas fora do tom durante a criação de melodias/harmonias.
+- **Menu Principal estilo jogo + Interface 100% clicável por mouse:** Iniciar em um menu inicial interativo antes de abrir a câmera, com botões clicáveis (`cv2.setMouseCallback`) em todas as telas (`MAIN_MENU`, `HOW_TO_PLAY`, `CALIBRATION`, `STAGE`), mantendo atalhos de teclado apenas como conveniência secundária.
 
 ### 5.2 Escolhas de Engenharia (Propostas pelo Projetista)
 
@@ -166,21 +167,15 @@ Comandos JSON suportados (mantendo retrocompatibilidade com `note_on`, `note_off
 - `{"type": "loop_clear"}`
 - `{"type": "modulate", "cutoff": ..., "pitch_bend": ..., "volume": ..., "resonance": ..., "bpm": ...}`
 
-#### F. Fluxo de Uso, Atalhos e Conversão do Guia (`vision_ai/main.py`, `tutor.py`, `hud.py`)
-- **Atalhos de Teclado:**
-  - `[ESPAÇO]`: Controla o **Loop Session** (`Iniciar Gravação de Base` $\rightarrow$ `Fechar Loop & Tocar` $\rightarrow$ `Overdub Melodia` $\leftrightarrow$ `Tocar`). Ao fechar a primeira base harmônica, a mão direita alterna automaticamente para o **Modo Melodia** (ou o usuário alterna quando quiser com `[M]`).
-  - `[M]`: Alterna a mão direita entre **Modo Acordes (Sinais de Palco)** e **Modo Melodia (Pads no Tom Detectado)**.
-  - `[C]`: Limpa o Loop Session e destrava a detecção de tom.
-  - `[G]`: Liga/desliga o **Guia de Progressões** (antigo `tutor.py` adaptado para ensinar progressões populares nos sinais de mão, ex.: `C → G → Am → F`, `Am → F → C → G`, `C → F → G → C`, acompanhando o sinal feito pela rede neural).
-  - `[K]`: Inicia/avança o **Modo Calibração Ao Vivo da MLP** (grava exemplos rápidos dos 8 gestos com a câmera do usuário e retreina a rede).
-  - `[W]`: Alterna forma de onda (`saw`, `sine`, `square`, `triangle`).
-  - `[E]`: Alterna escala manual (usada quando nenhum tom foi travado pelo detector harmônico).
-  - `[R]`: *All Notes Off*.
-  - `[Q]` ou `ESC`: Encerra o sistema de forma limpa.
+#### F. Menu Estilo Jogo, Controles por Mouse e Guia de Progressões (`vision_ai/main.py`, `tutor.py`, `hud.py`)
+- **Fluxo de Telas Estilo Jogo (Inicialização Preguiçosa da Câmera):**
+  - `MAIN_MENU`: Tela inicial animada sem abrir a webcam ainda, exibindo o título **AetherSynth**, status do motor Rust DSP / MLP e 5 botões grandes clicáveis: `INICIAR LOOP SESSION`, `MODO DESAFIO (ACORDES)`, `CALIBRAR IA (MINHA MAO)`, `COMO JOGAR & TIMBRE`, `SAIR DO JOGO`.
+  - `HOW_TO_PLAY`: Referência visual dos 7 sinais de acordes + `Punho`, 4 setas de orientação (`Maior`, `Menor`, `Sustenido #`, `Bemol b`), seletores de forma de onda (`SAW`, `SINE`, `SQUARE`, `TRIANGLE`) e botão `[ < MENU PRINCIPAL ]`.
+  - `CALIBRATION`: Abre a câmera sob demanda, exibe 8 botões de classe (`Punho, Do, Re, Mi, Fa, Sol, La, Si`), `[ GRAVAR AMOSTRAS ]`, `[ TREINAR REDE MLP ]`, `[ PADRAO ]` e `[ < VOLTAR ]`.
+  - `STAGE`: Abre a câmera sob demanda com barra superior clicável (`[ < MENU ]`, `TOM`, `BPM`, `[ ONDA ]`, `[ ESCALA ]`, `RUST DSP`), pads de escala no topo, timeline do Loop Session e dock inferior com botões clicáveis (`[ GRAVAR BASE / FECHAR LOOP / + OVERDUB / LOOP ATIVO ]`, `[ LIMPAR ]`, `[ MODO: ACORDES / MELODIA ]`, `[ DESAFIO ]`, `[ CALIBRAR IA ]`, `[ SILENCIAR ]`). Atalhos de teclado (`ESPAÇO`, `M`, `C`, `G`, `K`, `W`, `E`, `R`, `Q`/`ESC`) seguem funcionando como alternativa opcional.
 - **Otimização da HUD (`vision_ai/hud.py`):**
   - Substituir o loop de ~45 `cv2.circle` do dial de Cutoff por uma única chamada `cv2.ellipse`.
-  - Reduzir cópias repetidas de sub-regiões na composição de vidro translúcido: compor os cards em camada única ou ROI estritamente delimitada apenas onde necessário e cachear os retângulos dos 8 pads quando `(w, h, scale_notes)` não mudam.
-  - Exibir na HUD: tom detectado + confiança (`TOM: Dó Maior 94%`), BPM + indicador visual de pulso rítmico da mão esquerda, cifra do acorde detectado pela IA + confiança (`SOL MAIOR 96%`), linha do tempo do Loop Session (compassos/batidas e sequência de acordes gravados) e modo ativo (`ACORDES` / `MELODIA` / `CALIBRAÇÃO`).
+  - Reduzir cópias repetidas de sub-regiões na composição de vidro translúcido, usar texto 7-bit ASCII nas fontes Hershey do OpenCV (evitando `?` em acentos) com ícones vetoriais desenhados por primitivas OpenCV, e cachear os retângulos dos 8 pads quando `(w, h, scale_notes)` não mudam.
 
 ### 5.3 Escopo Deixado ao Implementador
 - Ajuste fino de ganhos relativos entre as vozes de acorde (baixo + tríade) e as vozes de melodia para evitar saturação no `tanh()` final.
